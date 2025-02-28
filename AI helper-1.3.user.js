@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         AI助手選擇器
+// @name         AI助手選擇器 / AI Assistant Selector
 // @namespace    http://tampermonkey.net/
 // @version      1.3
-// @description  在一個介面中同時使用多個AI助手（Grok, ChatGPT, Gemini, Perplexity）
+// @description  一個 Tampermonkey 腳本，提供浮動介面整合多款 AI 助手（Grok、ChatGPT、Gemini、Perplexity），支援繁體中文，隨時提升效率。/ A Tampermonkey script with a floating UI to integrate multiple AI assistants (Grok, ChatGPT, Gemini, Perplexity), supporting Traditional Chinese for seamless productivity.
 // @author       Your name
 // @match        *://*/*
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
@@ -15,7 +15,7 @@
 (function() {
     'use strict';
 
-    // 樣式定義
+    // 樣式定義（不變）
     const styles = `
         .ai-selector-container {
             position: fixed;
@@ -123,13 +123,13 @@
         }
     `;
 
-    // AI助手配置
+    // AI助手配置（不變）
     const AIs = [
         {
             id: 'gemini',
             name: 'Gemini',
             url: 'https://gemini.google.com/app',
-            inputSelector: 'rich-textarea.text-input-field_textarea', // Gemini 的輸入選擇器
+            inputSelector: 'rich-textarea.text-input-field_textarea',
             color: '#8e44ad'
         },
         {
@@ -155,7 +155,7 @@
     // 添加樣式
     GM_addStyle(styles);
 
-    // 創建UI
+    // 創建UI（雙語調整）
     function createUI() {
         const bubble = document.createElement('div');
         bubble.className = 'ai-selector-bubble';
@@ -167,12 +167,12 @@
         container.className = 'ai-selector-container';
         container.style.display = 'none';
 
-        // 創建 header
+        // 創建 header（中英文標題）
         const header = document.createElement('div');
         header.className = 'ai-selector-header';
         const title = document.createElement('div');
         title.className = 'ai-selector-title';
-        title.textContent = 'AI助手選擇器';
+        title.textContent = 'AI助手選擇器 / AI Assistant Selector'; // 雙語標題
         const minimize = document.createElement('div');
         minimize.className = 'ai-selector-minimize';
         minimize.textContent = '×';
@@ -183,7 +183,7 @@
         const content = document.createElement('div');
         content.className = 'ai-selector-content';
 
-        // 添加 AI 選項
+        // 添加 AI 選項（名稱保持英文，簡單直觀）
         AIs.forEach(ai => {
             const option = document.createElement('div');
             option.className = 'ai-option selected';
@@ -191,19 +191,20 @@
             option.style.border = `2px solid ${ai.color}`;
             const name = document.createElement('span');
             name.className = 'ai-name';
-            name.textContent = ai.name;
+            name.textContent = ai.name; // AI 名稱保持英文
             option.appendChild(name);
             content.appendChild(option);
         });
 
-        // 添加輸入框和按鈕
+        // 添加輸入框（雙語 placeholder）
         const questionInput = document.createElement('textarea');
         questionInput.className = 'question-input';
-        questionInput.placeholder = '輸入您的問題...';
+        questionInput.placeholder = '輸入您的問題 / Enter your question'; // 雙語提示
 
+        // 添加按鈕（雙語）
         const sendButton = document.createElement('button');
         sendButton.className = 'send-button';
-        sendButton.textContent = '發送到選中的AI';
+        sendButton.textContent = '發送到選中的AI / Send to Selected AI'; // 雙語按鈕
 
         content.appendChild(questionInput);
         content.appendChild(sendButton);
@@ -216,7 +217,7 @@
         return { bubble, container };
     }
 
-    // 初始化事件監聽
+    // 初始化事件監聽（不變）
     function initializeEvents(bubble, container) {
         const aiOptions = container.querySelectorAll('.ai-option');
         const questionInput = container.querySelector('.question-input');
@@ -225,20 +226,17 @@
         const header = container.querySelector('.ai-selector-header');
         const content = container.querySelector('.ai-selector-content');
 
-        // 選擇AI
         aiOptions.forEach(option => {
             option.addEventListener('click', () => {
                 option.classList.toggle('selected');
             });
         });
 
-        // 關閉按鈕
         minimizeButton.addEventListener('click', () => {
             container.style.display = 'none';
             bubble.style.display = 'flex';
         });
 
-        // 發送問題
         sendButton.addEventListener('click', () => {
             const selectedAIs = [...aiOptions].filter(option => option.classList.contains('selected'));
             const question = questionInput.value.trim();
@@ -251,11 +249,10 @@
                         openAIInNewTab(ai, question);
                     }
                 });
-                questionInput.value = ''; // 清空輸入框
+                questionInput.value = '';
             }
         });
 
-        // 拖曳功能並控制展開，限制在螢幕範圍內
         function makeDraggable(element, savePosition, onClick) {
             let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
             let startX = 0, startY = 0;
@@ -307,7 +304,6 @@
             }
         }
 
-        // 泡泡的展開邏輯
         function positionContainer() {
             const bubbleRect = bubble.getBoundingClientRect();
             const bubbleCenterX = bubbleRect.left + bubbleRect.width / 2;
@@ -330,69 +326,46 @@
         makeDraggable(header, true);
     }
 
-    // 在新標籤頁中打開AI
+    // 在新標籤頁中打開AI（不變）
     function openAIInNewTab(ai, question) {
         const url = `${ai.url}${ai.id === 'gemini' ? '?q=' : '?q='}${encodeURIComponent(question)}`;
         window.open(url, '_blank');
     }
 
-    // 處理 Gemini 頁面的自動輸入和提交
+    // 處理 Gemini 頁面的自動輸入和提交（不變）
     function handleGeminiPage() {
         if (window.location.hostname === 'gemini.google.com' && window.location.search.includes('q=')) {
             const query = new URLSearchParams(window.location.search).get('q');
             if (query) {
                 console.log("开始执行Gemini自动填入脚本");
 
-                // 使用用户提供的函数设置问题并发送
                 function setTextAndSendAfterDelay(string) {
-                    // Get the rich-textarea element
                     const richTextarea = document.querySelector('rich-textarea.text-input-field_textarea');
-
-                    // Check if the element exists
                     if (!richTextarea) {
                         console.error('Rich textarea element not found');
                         return false;
                     }
-
-                    // Find the first div inside the rich-textarea
                     const firstDiv = richTextarea.querySelector('div');
-
-                    // Check if the div exists
                     if (!firstDiv) {
                         console.error('No div found inside rich-textarea');
                         return false;
                     }
-
-                    // Set the innerText of the first div
                     firstDiv.innerText = string;
-
-                    // 触发输入事件
                     const event = new Event('input', { bubbles: true });
                     firstDiv.dispatchEvent(event);
-
                     console.log('Successfully set innerText of the first div to:', string);
-
-                    // Wait for 1 second (1000ms) and then click the send button
                     setTimeout(() => {
-                        // Find the send button by its class
                         const sendButton = document.querySelector('.send-button');
-
-                        // Check if the button exists
                         if (!sendButton) {
                             console.error('Send button not found');
                             return;
                         }
-
-                        // Click the button
                         sendButton.click();
-
                         console.log('Send button clicked');
                     }, 1000);
-
                     return true;
                 }
 
-                // 等待页面加载完成
                 const waitForElement = (selector, maxAttempts = 30) => {
                     return new Promise((resolve) => {
                         let attempts = 0;
@@ -413,14 +386,9 @@
                     });
                 };
 
-                // 尝试设置问题并提交
                 const trySetQuestion = async () => {
-                    // 等待输入框加载
                     await waitForElement('rich-textarea.text-input-field_textarea');
-
-                    // 使用函数设置问题并自动发送
                     const success = setTextAndSendAfterDelay(decodeURIComponent(query));
-
                     return success;
                 };
 
@@ -432,20 +400,18 @@
                     console.error('Gemini自动填入脚本错误:', e);
                 });
 
-                // 更新 URL 移除 q=xxxx，不重新載入頁面
                 window.history.replaceState({}, document.title, '/app');
             }
         }
     }
 
-    // 啟動腳本
+    // 啟動腳本（不變）
     function initialize() {
         const { bubble, container } = createUI();
         initializeEvents(bubble, container);
-        handleGeminiPage(); // 處理 Gemini 頁面
+        handleGeminiPage();
     }
 
-    // 等待頁面加載完成後初始化
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initialize);
     } else {
